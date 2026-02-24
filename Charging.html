@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery HUD - Elegante Batterieanzeige für Windows</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 230, 120, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .battery-demo {
+            width: 250px;
+            height: 250px;
+            position: relative;
+            margin: 2rem auto;
+            z-index: 1;
+        }
+
+        .battery-ring {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#00e678 0deg 252deg, transparent 252deg);
+            position: relative;
+            animation: rotate 3s linear infinite;
+        }
+
+        .battery-ring::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            background: #1a1a2e;
+            border-radius: 50%;
+        }
+
+        .battery-percent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00e678, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+            margin-bottom: 2rem;
+            z-index: 1;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #00e678, #00c864);
+            color: white;
+            padding: 1.2rem 3rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 230, 120, 0.3);
+            z-index: 1;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 230, 120, 0.5);
+        }
+
+        .features {
+            padding: 5rem 2rem;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #00e678;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #00e678;
+        }
+
+        .feature-desc {
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #ffffff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .usage {
+            padding: 5rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .usage-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #00e678, #00a8ff);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #00e678;
+        }
+
+        .step-content p {
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .specs {
+            padding: 5rem 2rem;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .specs-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spec-item:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            color: #a0a0a0;
+        }
+
+        .spec-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .battery-demo {
+                width: 200px;
+                height: 200px;
+            }
+
+            .battery-percent {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="battery-demo">
+            <div class="battery-ring"></div>
+            <div class="battery-percent">70%</div>
+        </div>
+        <h1>Battery HUD</h1>
+        <p class="subtitle">Elegante Batterieanzeige für Windows</p>
+        <div class="download-buttons">
+            <a href="https://github.com/zzulukulu-svg/BaterieHUD/releases/download/V3/chargingV3.exe" class="download-btn">⬇️ Download V3</a>
+            <a href="https://github.com/zzulukulu-svg/BaterieHUD/releases/download/V2/chargingV2.exe" class="download-btn">⬇️ Download V2</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2 class="section-title">Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Automatische Anzeige</h3>
+                <p class="feature-desc">Zeigt automatisch eine Animation beim Ein- und Ausstecken des Ladekabels</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">Anpassbare Farben</h3>
+                <p class="feature-desc">Wählen Sie Ihre eigene Akzentfarbe mit dem integrierten Farbwähler</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3 class="feature-title">Moderne Animationen</h3>
+                <p class="feature-desc">Smooth Easing-Effekte und elegante Fade-Übergänge</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🪶</div>
+                <h3 class="feature-title">Leichtgewichtig</h3>
+                <p class="feature-desc">Minimaler Ressourcenverbrauch, läuft diskret im Hintergrund</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3 class="feature-title">Einstellungen speichern</h3>
+                <p class="feature-desc">Ihre Farbwahl wird automatisch gespeichert und beim Start geladen</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Einfache Bedienung</h3>
+                <p class="feature-desc">Tray-Icon mit Rechtsklick-Menü für schnellen Zugriff</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="usage">
+        <h2 class="section-title">Verwendung</h2>
+        <div class="usage-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Herunterladen & Starten</h3>
+                    <p>Laden Sie die EXE-Datei herunter und starten Sie sie. Das Programm läuft automatisch im System Tray.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Ladekabel einstecken</h3>
+                    <p>Sobald Sie Ihr Ladekabel einstecken oder entfernen, erscheint automatisch die animierte Batterieanzeige.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Anpassen</h3>
+                    <p>Rechtsklick auf das Tray-Icon → "Farbe wählen" um Ihre eigene Akzentfarbe zu setzen.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Testen</h3>
+                    <p>Nutzen Sie "Animation testen" im Tray-Menü, um die Animation jederzeit manuell anzuzeigen.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="specs">
+        <h2 class="section-title">Systemanforderungen</h2>
+        <div class="specs-container">
+            <div class="spec-item">
+                <span class="spec-label">Betriebssystem</span>
+                <span class="spec-value">Windows 7 oder neuer</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Hardware</span>
+                <span class="spec-value">Laptop mit Batterie</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Dateigröße</span>
+                <span class="spec-value">~200 KB</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">RAM-Verbrauch</span>
+                <span class="spec-value">~5-10 MB</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Installation</span>
+                <span class="spec-value">Nicht erforderlich</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Lizenz</span>
+                <span class="spec-value">Freeware</span>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Battery HUD. Entwickelt für Windows-Nutzer die Wert auf Design legen.</p>
+    </footer>
+
+    <script>
+        let percent = 70;
+        let increasing = true;
+
+        setInterval(() => {
+            if (increasing) {
+                percent += 1;
+                if (percent >= 100) increasing = false;
+            } else {
+                percent -= 1;
+                if (percent <= 20) increasing = true;
+            }
+            document.querySelector('.battery-percent').textContent = percent + '%';
+            
+            const deg = (percent / 100) * 360;
+            document.querySelector('.battery-ring').style.background = 
+                `conic-gradient(#00e678 0deg ${deg}deg, transparent ${deg}deg)`;
+        }, 50);
+    </script>
+</body>
+</html>
