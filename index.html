@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Battery HUD - Elegante Batterieanzeige für Windows</title>
+
+    <!-- Open Graph Tags für Discord/WhatsApp -->
+    <meta property="og:title" content="Battery HUD by zzulukulu-svg">
+    <meta property="og:description" content="Elegante Batterieanzeige für Windows – kostenlos herunterladen!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zzulukulu-svg.github.io/BaterieHUD">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔋</text></svg>">
+
     <style>
         * {
             margin: 0;
@@ -18,6 +28,45 @@
             overflow-x: hidden;
         }
 
+        /* ── NAVIGATION ── */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 230, 120, 0.1);
+        }
+
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00e678, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-github {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #a0a0a0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .nav-github:hover {
+            color: #00e678;
+        }
+
+        /* ── HERO ── */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -26,6 +75,7 @@
             align-items: center;
             text-align: center;
             padding: 2rem;
+            padding-top: 5rem;
             position: relative;
             overflow: hidden;
         }
@@ -45,29 +95,35 @@
             50% { transform: scale(1.1); opacity: 0.8; }
         }
 
+        /* ── BATTERY DEMO (ohne Rotation!) ── */
         .battery-demo {
-            width: 250px;
-            height: 250px;
+            width: 220px;
+            height: 220px;
             position: relative;
             margin: 2rem auto;
             z-index: 1;
         }
 
-        .battery-ring {
+        .battery-svg {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
-            background: conic-gradient(#00e678 0deg 252deg, transparent 252deg);
-            position: relative;
-            animation: rotate 3s linear infinite;
+            transform: rotate(-90deg);
         }
 
-        .battery-ring::before {
-            content: '';
-            position: absolute;
-            inset: 8px;
-            background: #1a1a2e;
-            border-radius: 50%;
+        .battery-bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.1);
+            stroke-width: 10;
+        }
+
+        .battery-progress {
+            fill: none;
+            stroke: url(#progressGradient);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 565;
+            stroke-dashoffset: 141;
+            transition: stroke-dashoffset 0.3s ease;
         }
 
         .battery-percent {
@@ -75,20 +131,30 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: bold;
             z-index: 2;
+            background: linear-gradient(135deg, #00e678, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .battery-label {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #666;
+            z-index: 2;
+            white-space: nowrap;
         }
 
         h1 {
             font-size: 3.5rem;
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             background: linear-gradient(135deg, #00e678, #00a8ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -97,10 +163,26 @@
         }
 
         .subtitle {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: #a0a0a0;
+            margin-bottom: 0.5rem;
+            z-index: 1;
+        }
+
+        .author-badge {
+            font-size: 0.9rem;
+            color: #555;
             margin-bottom: 2rem;
             z-index: 1;
+        }
+
+        .author-badge a {
+            color: #00e678;
+            text-decoration: none;
+        }
+
+        .author-badge a:hover {
+            text-decoration: underline;
         }
 
         .download-buttons {
@@ -114,17 +196,19 @@
         .download-btn {
             background: linear-gradient(135deg, #00e678, #00c864);
             color: white;
-            padding: 1.2rem 3rem;
+            padding: 1rem 2.5rem;
             border: none;
             border-radius: 50px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 10px 30px rgba(0, 230, 120, 0.3);
             z-index: 1;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .download-btn:hover {
@@ -132,6 +216,67 @@
             box-shadow: 0 15px 40px rgba(0, 230, 120, 0.5);
         }
 
+        /* ── CHANGELOG ── */
+        .changelog {
+            padding: 4rem 2rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .changelog-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .changelog-grid { grid-template-columns: 1fr; }
+        }
+
+        .changelog-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .changelog-card.latest {
+            border-color: #00e678;
+        }
+
+        .changelog-version {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00e678;
+            margin-bottom: 0.3rem;
+        }
+
+        .changelog-date {
+            font-size: 0.8rem;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+
+        .changelog-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .changelog-card ul li::before {
+            content: "✦ ";
+            color: #00e678;
+            font-size: 0.7rem;
+        }
+
+        .changelog-card ul li {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* ── FEATURES ── */
         .features {
             padding: 5rem 2rem;
             background: rgba(255, 255, 255, 0.02);
@@ -159,21 +304,9 @@
             border-color: #00e678;
         }
 
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-title {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: #00e678;
-        }
-
-        .feature-desc {
-            color: #b0b0b0;
-            line-height: 1.6;
-        }
+        .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .feature-title { font-size: 1.5rem; margin-bottom: 0.5rem; color: #00e678; }
+        .feature-desc { color: #b0b0b0; line-height: 1.6; }
 
         .section-title {
             text-align: center;
@@ -185,23 +318,16 @@
             background-clip: text;
         }
 
+        /* ── USAGE ── */
         .usage {
             padding: 5rem 2rem;
             max-width: 900px;
             margin: 0 auto;
         }
 
-        .usage-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
+        .usage-steps { display: flex; flex-direction: column; gap: 2rem; }
 
-        .step {
-            display: flex;
-            align-items: flex-start;
-            gap: 1.5rem;
-        }
+        .step { display: flex; align-items: flex-start; gap: 1.5rem; }
 
         .step-number {
             background: linear-gradient(135deg, #00e678, #00a8ff);
@@ -216,17 +342,10 @@
             flex-shrink: 0;
         }
 
-        .step-content h3 {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            color: #00e678;
-        }
+        .step-content h3 { font-size: 1.3rem; margin-bottom: 0.5rem; color: #00e678; }
+        .step-content p { color: #b0b0b0; line-height: 1.6; }
 
-        .step-content p {
-            color: #b0b0b0;
-            line-height: 1.6;
-        }
-
+        /* ── SPECS ── */
         .specs {
             padding: 5rem 2rem;
             background: rgba(255, 255, 255, 0.02);
@@ -248,60 +367,74 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .spec-item:last-child {
-            border-bottom: none;
-        }
+        .spec-item:last-child { border-bottom: none; }
+        .spec-label { color: #a0a0a0; }
+        .spec-value { color: #ffffff; font-weight: 600; }
 
-        .spec-label {
-            color: #a0a0a0;
-        }
-
-        .spec-value {
-            color: #ffffff;
-            font-weight: 600;
-        }
-
+        /* ── FOOTER ── */
         footer {
             text-align: center;
             padding: 2rem;
-            color: #666;
+            color: #444;
             font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
 
+        footer a {
+            color: #00e678;
+            text-decoration: none;
+        }
+
+        footer a:hover { text-decoration: underline; }
+
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-
-            .subtitle {
-                font-size: 1.2rem;
-            }
-
-            .battery-demo {
-                width: 200px;
-                height: 200px;
-            }
-
-            .battery-percent {
-                font-size: 2.5rem;
-            }
+            h1 { font-size: 2.5rem; }
+            .subtitle { font-size: 1.2rem; }
+            .battery-demo { width: 180px; height: 180px; }
+            .battery-percent { font-size: 2.2rem; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Navigation -->
+    <nav>
+        <span class="nav-logo">🔋 Battery HUD</span>
+        <a href="https://github.com/zzulukulu-svg/BaterieHUD" class="nav-github" target="_blank">
+            ⭐ GitHub ansehen
+        </a>
+    </nav>
+
+    <!-- Hero -->
     <section class="hero">
         <div class="battery-demo">
-            <div class="battery-ring"></div>
-            <div class="battery-percent">70%</div>
+            <svg class="battery-svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#00e678"/>
+                        <stop offset="100%" style="stop-color:#00a8ff"/>
+                    </linearGradient>
+                </defs>
+                <circle class="battery-bg" cx="100" cy="100" r="90"/>
+                <circle class="battery-progress" id="progressCircle" cx="100" cy="100" r="90"/>
+            </svg>
+            <div class="battery-percent" id="percentText">70%</div>
+            <div class="battery-label" id="chargeLabel">⚡ Lädt...</div>
         </div>
+
         <h1>Battery HUD</h1>
         <p class="subtitle">Elegante Batterieanzeige für Windows</p>
+        <p class="author-badge">von <a href="https://github.com/zzulukulu-svg" target="_blank">zzulukulu-svg</a></p>
+
         <div class="download-buttons">
             <a href="https://github.com/zzulukulu-svg/BaterieHUD/releases/download/V3/chargingV3.exe" class="download-btn">⬇️ Download V3</a>
             <a href="https://github.com/zzulukulu-svg/BaterieHUD/releases/download/V2/chargingV2.exe" class="download-btn">⬇️ Download V2</a>
         </div>
     </section>
 
+
+
+    <!-- Features -->
     <section class="features">
         <h2 class="section-title">Features</h2>
         <div class="features-grid">
@@ -310,31 +443,26 @@
                 <h3 class="feature-title">Automatische Anzeige</h3>
                 <p class="feature-desc">Zeigt automatisch eine Animation beim Ein- und Ausstecken des Ladekabels</p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">🎨</div>
                 <h3 class="feature-title">Anpassbare Farben</h3>
-                <p class="feature-desc">Wählen Sie Ihre eigene Akzentfarbe mit dem integrierten Farbwähler</p>
+                <p class="feature-desc">Wähle deine eigene Akzentfarbe mit dem integrierten Farbwähler</p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">✨</div>
                 <h3 class="feature-title">Moderne Animationen</h3>
                 <p class="feature-desc">Smooth Easing-Effekte und elegante Fade-Übergänge</p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">🪶</div>
                 <h3 class="feature-title">Leichtgewichtig</h3>
                 <p class="feature-desc">Minimaler Ressourcenverbrauch, läuft diskret im Hintergrund</p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">💾</div>
                 <h3 class="feature-title">Einstellungen speichern</h3>
-                <p class="feature-desc">Ihre Farbwahl wird automatisch gespeichert und beim Start geladen</p>
+                <p class="feature-desc">Deine Farbwahl wird automatisch gespeichert und beim Start geladen</p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">🎯</div>
                 <h3 class="feature-title">Einfache Bedienung</h3>
@@ -343,6 +471,7 @@
         </div>
     </section>
 
+    <!-- Usage -->
     <section class="usage">
         <h2 class="section-title">Verwendung</h2>
         <div class="usage-steps">
@@ -350,36 +479,34 @@
                 <div class="step-number">1</div>
                 <div class="step-content">
                     <h3>Herunterladen & Starten</h3>
-                    <p>Laden Sie die EXE-Datei herunter und starten Sie sie. Das Programm läuft automatisch im System Tray.</p>
+                    <p>Lade die EXE-Datei herunter und starte sie. Das Programm läuft automatisch im System Tray.</p>
                 </div>
             </div>
-
             <div class="step">
                 <div class="step-number">2</div>
                 <div class="step-content">
                     <h3>Ladekabel einstecken</h3>
-                    <p>Sobald Sie Ihr Ladekabel einstecken oder entfernen, erscheint automatisch die animierte Batterieanzeige.</p>
+                    <p>Sobald du dein Ladekabel einsteckst oder entfernst, erscheint automatisch die animierte Batterieanzeige.</p>
                 </div>
             </div>
-
             <div class="step">
                 <div class="step-number">3</div>
                 <div class="step-content">
                     <h3>Anpassen</h3>
-                    <p>Rechtsklick auf das Tray-Icon → "Farbe wählen" um Ihre eigene Akzentfarbe zu setzen.</p>
+                    <p>Rechtsklick auf das Tray-Icon → "Farbe wählen" um deine eigene Akzentfarbe zu setzen.</p>
                 </div>
             </div>
-
             <div class="step">
                 <div class="step-number">4</div>
                 <div class="step-content">
                     <h3>Testen</h3>
-                    <p>Nutzen Sie "Animation testen" im Tray-Menü, um die Animation jederzeit manuell anzuzeigen.</p>
+                    <p>Nutze "Animation testen" im Tray-Menü, um die Animation jederzeit manuell anzuzeigen.</p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Specs -->
     <section class="specs">
         <h2 class="section-title">Systemanforderungen</h2>
         <div class="specs-container">
@@ -410,28 +537,55 @@
         </div>
     </section>
 
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2025 Battery HUD. Entwickelt für Windows-Nutzer die Wert auf Design legen.</p>
+        <p>© 2025 <a href="https://github.com/zzulukulu-svg" target="_blank">zzulukulu-svg</a> · Battery HUD · Freeware für Windows</p>
     </footer>
 
     <script>
+        // Smooth Animation mit requestAnimationFrame (kein setInterval!)
+        const circle = document.getElementById('progressCircle');
+        const percentText = document.getElementById('percentText');
+        const chargeLabel = document.getElementById('chargeLabel');
+        const circumference = 2 * Math.PI * 90; // 565.5
+
         let percent = 70;
         let increasing = true;
+        let lastTime = 0;
+        const speed = 15; // Prozent pro Sekunde
 
-        setInterval(() => {
+        function animate(timestamp) {
+            const delta = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
             if (increasing) {
-                percent += 1;
-                if (percent >= 100) increasing = false;
+                percent += speed * delta;
+                if (percent >= 100) { percent = 100; increasing = false; }
             } else {
-                percent -= 1;
-                if (percent <= 20) increasing = true;
+                percent -= speed * delta;
+                if (percent <= 20) { percent = 20; increasing = true; }
             }
-            document.querySelector('.battery-percent').textContent = percent + '%';
-            
-            const deg = (percent / 100) * 360;
-            document.querySelector('.battery-ring').style.background = 
-                `conic-gradient(#00e678 0deg ${deg}deg, transparent ${deg}deg)`;
-        }, 50);
+
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            percentText.textContent = Math.round(percent) + '%';
+
+            // Farbe je nach Ladestand
+            if (percent > 60) {
+                circle.style.stroke = 'url(#progressGradient)';
+                chargeLabel.textContent = '⚡ Lädt...';
+            } else if (percent > 30) {
+                circle.style.stroke = '#f0b429';
+                chargeLabel.textContent = '🔋 Mittel';
+            } else {
+                circle.style.stroke = '#ff4444';
+                chargeLabel.textContent = '⚠️ Niedrig';
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
     </script>
 </body>
 </html>
